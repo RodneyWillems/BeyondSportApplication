@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -9,8 +10,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject m_playerPrefab;
 
     [Header("Teams")]
-    [SerializeField] private List<GameObject> m_team0;
-    [SerializeField] private GameObject[] m_team0Positions;
+    [SerializeField] private List<GameObject> m_team1;
+    [SerializeField] private GameObject[] m_team1Positions;
     [SerializeField] private List<GameObject> m_team2;
     [SerializeField] private GameObject[] m_team2Positions;
     [SerializeField] private Material m_team1Colour;
@@ -30,9 +31,46 @@ public class GameManager : MonoBehaviour
             MatchInfo temporaryInfo = JsonUtility.FromJson<MatchInfo>(frames[0]);
             SpawnTeams(temporaryInfo);
 
+            int loop = 0;
             foreach (string frameJson in frames)
             {
                 m_matchInfo.Add(JsonUtility.FromJson<MatchInfo>(frameJson));
+
+                // Every frame update the position of the players based on the match info
+                foreach (Person person in m_matchInfo[loop].Persons)
+                {
+                    if (person.TeamSide == 1)
+                    {
+                        for (int i = 0; i < m_team1.Count; i++)
+                        {
+                            if (m_team1[i].name == "Team1_Player " + person.JerseyNumber)
+                            {
+                                m_team1[i].transform.position = new Vector3(person.Position[0], person.Position[1], person.Position[2]);
+                                if (person.PersonContext.HassBallPossession)
+                                {
+                                    m_team1[i].GetComponent<FootballPlayer>().HasBall(true);
+                                }
+                            }
+                        }
+                    }
+                    else if (person.TeamSide == 2)
+                    {
+                        for (int i = 0; i < m_team2.Count; i++)
+                        {
+                            if (m_team2[i].name == "Team2_Player " + person.JerseyNumber)
+                            {
+                                m_team2[i].transform.position = new Vector3(person.Position[0], person.Position[1], person.Position[2]);
+                            }
+                        }
+                    }
+                }
+
+                if (loop > m_matchInfo.Count)
+                {
+                    match = false;
+                    break;
+                }
+                loop++;
                 yield return new WaitForEndOfFrame();
             }
         }
@@ -40,20 +78,21 @@ public class GameManager : MonoBehaviour
 
     private void SpawnTeams(MatchInfo matchinfo)
     {
-        int team0 = 0;
+        int team1 = 0;
         int team2 = 0;
         for (int i = 0; i < matchinfo.Persons.Length; i++)
         {
             Person person = matchinfo.Persons[i];
+            // For every player check the team side and spawn the player in the correct position
             if (person.TeamSide == 1)
             {
-                GameObject newPlayer = Instantiate(m_playerPrefab, m_team0Positions[team0].transform.position, Quaternion.identity);
-                m_team0.Add(newPlayer);
+                GameObject newPlayer = Instantiate(m_playerPrefab, m_team1Positions[team1].transform.position, Quaternion.identity);
+                m_team1.Add(newPlayer);
                 newPlayer.name = "Team1_Player " + person.JerseyNumber;
                 newPlayer.GetComponent<FootballPlayer>().SetPlayer(person.JerseyNumber, m_team1Colour, 1);
                 newPlayer.transform.position = new Vector3(person.Position[0], person.Position[1], person.Position[2]);
                 newPlayer.transform.LookAt(Vector3.zero);
-                team0++;
+                team1++;
             }
             else if (person.TeamSide == 2)
             {

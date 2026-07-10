@@ -4,9 +4,10 @@ using UnityEngine;
 public class FootballPlayer : MonoBehaviour
 {
     [Header("Player Info")]
+    public bool HasBall;
+
     [SerializeField] private int m_playerNumber;
     [SerializeField] private int m_teamNumber;
-    [SerializeField] private bool m_hasBall;
 
     private TextMeshPro m_number;
 
