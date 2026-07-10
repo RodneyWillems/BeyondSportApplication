@@ -2,11 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
+
     [SerializeField] private GameObject m_playerPrefab;
 
     [Header("Teams")]
@@ -20,8 +23,30 @@ public class GameManager : MonoBehaviour
     [Header("Ball")]
     [SerializeField] private GameObject m_ball;
 
+    [Header("Time")]
+    [SerializeField] private int m_minutes;
+    [SerializeField] private int m_seconds;
+    [SerializeField] private TextMeshProUGUI m_timeText;
+
+    [Header("Score")]
+    [SerializeField] private int m_team1Score;
+    [SerializeField] private int m_team2Score;
+    [SerializeField] private TextMeshProUGUI m_team1ScoreText;
+    [SerializeField] private TextMeshProUGUI m_team2ScoreText;
+
     private List<MatchInfo> m_matchInfo;
     private bool match;
+
+    void Start()
+    {
+        // Simple setup just start everything and cap the frame rate at 60 to make the simulation easy to track no matter the system
+        Instance = this;
+        Application.targetFrameRate = 60;
+        m_matchInfo = new();
+        StartCoroutine(PlayMatch());
+        StartCoroutine(Clock());
+        UpdateScore(0);
+    }
 
     private IEnumerator PlayMatch()
     {
@@ -29,6 +54,7 @@ public class GameManager : MonoBehaviour
         match = true;
         while (match)
         {
+            // Being able to read the Json file took a lot of looking around with the extension name but I found it and made it work
             string path = Path.Combine(Application.dataPath, "Data/frames.idf");
             string[] frames = File.ReadAllLines(path);
             MatchInfo temporaryInfo = JsonUtility.FromJson<MatchInfo>(frames[0]);
@@ -37,16 +63,19 @@ public class GameManager : MonoBehaviour
             int loop = 0;
             foreach (string frameJson in frames)
             {
+                // Every frame add 1 new frame from the file before using the data inside of that frame to update the match
                 m_matchInfo.Add(JsonUtility.FromJson<MatchInfo>(frameJson));
                 if (loop > m_matchInfo.Count)
                 {
                     match = false;
                     break;
                 }
+                // Every frame update the position of the ball to the position inside the data
                 m_ball.transform.position = new Vector3(m_matchInfo[loop].Ball.Position[0], m_matchInfo[loop].Ball.Position[1], m_matchInfo[loop].Ball.Position[2]);
                 // Every frame update the position of the players based on the match info
                 foreach (Person person in m_matchInfo[loop].Persons)
                 {
+                    // First check if the person is a part of team 1 before searching for the correct jersey number to change the correct player
                     if (person.TeamSide == 1)
                     {
                         for (int i = 0; i < m_team1.Count; i++)
@@ -67,7 +96,7 @@ public class GameManager : MonoBehaviour
                             }
                         }
                     }
-
+                    // Same as before but now team 2
                     else if (person.TeamSide == 2)
                     {
                         for (int i = 0; i < m_team2.Count; i++)
@@ -98,6 +127,7 @@ public class GameManager : MonoBehaviour
 
     private void SpawnTeams(MatchInfo matchinfo)
     {
+        // 2 temporary variables to cycle through the correct team in the for loop
         int team1 = 0;
         int team2 = 0;
         for (int i = 0; i < matchinfo.Persons.Length; i++)
@@ -127,13 +157,62 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Start()
+    private IEnumerator Clock()
     {
-        Application.targetFrameRate = 60;
-        m_matchInfo = new();
-        StartCoroutine(PlayMatch());
+        while (match)
+        {
+            // Every second update the clock
+            // Every minute reset the seconds and update the minutes
+            yield return new WaitForSeconds(1);
+            m_seconds++;
+            if (m_seconds >= 60)
+            {
+                m_minutes++;
+                m_seconds = 0;
+            }
+            if (m_minutes < 10 && m_seconds < 10)
+            {
+                m_timeText.text = "0" + m_minutes.ToString() + ":" + "0" + m_seconds.ToString();
+            }
+            else if (m_minutes < 10 && m_seconds > 10)
+            {
+                m_timeText.text = "0" + m_minutes.ToString() + ":" + m_seconds.ToString();
+            }
+            else if (m_minutes > 10 && m_seconds < 10)
+            {
+                m_timeText.text = m_minutes.ToString() + ":" + "0" + m_seconds.ToString();
+            }
+            else
+            {
+                m_timeText.text = m_minutes.ToString() + ":" + m_seconds.ToString();
+            }
+        }
+    }
+
+    public void UpdateScore(int goal)
+    {
+        // Update the score depending on which team has scored
+        if (goal == 1)
+        {
+            m_team2Score++;
+            m_team2ScoreText.text = m_team2Score.ToString() + " Blue";
+        }
+        else if (goal == 2)
+        {
+            m_team1Score++;
+            m_team1ScoreText.text = "Red " + m_team1Score.ToString();
+        }
+        else
+        {
+            m_team1Score = 0;
+            m_team2Score = 0;
+            m_team1ScoreText.text = "Red 0";
+            m_team2ScoreText.text = "0 Blue";
+        }
     }
 }
+
+// All the match info data that was provided that I save 
 
 [System.Serializable]
 public class MatchInfo
