@@ -8,6 +8,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    #region Variables
     public static GameManager Instance;
 
     [SerializeField] private GameObject m_playerPrefab;
@@ -36,7 +37,9 @@ public class GameManager : MonoBehaviour
 
     private List<MatchInfo> m_matchInfo;
     private bool match;
+    #endregion
 
+    #region Setup
     void Start()
     {
         // Simple setup just start everything and cap the frame rate at 60 to make the simulation easy to track no matter the system
@@ -47,7 +50,8 @@ public class GameManager : MonoBehaviour
         StartCoroutine(Clock());
         UpdateScore(0);
     }
-
+    #endregion
+    #region Match data
     private IEnumerator PlayMatch()
     {
         // Every frame read 1 frame from the file and add it to the list of match info
@@ -156,7 +160,8 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-
+    #endregion
+    #region Self added match data
     private IEnumerator Clock()
     {
         while (match)
@@ -211,9 +216,9 @@ public class GameManager : MonoBehaviour
         }
     }
 }
-
+#endregion
+#region Json data
 // All the match info data that was provided that I save 
-
 [System.Serializable]
 public class MatchInfo
 {
@@ -273,3 +278,4 @@ public class MatchScoreContext
     public int HomeScore;
     public int AwayScore;
 }
+#endregion
