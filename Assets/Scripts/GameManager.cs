@@ -174,11 +174,11 @@ public class GameManager : MonoBehaviour
             {
                 m_timeText.text = "0" + m_minutes.ToString() + ":" + "0" + m_seconds.ToString();
             }
-            else if (m_minutes < 10 && m_seconds > 10)
+            else if (m_minutes < 10 && m_seconds >= 10)
             {
                 m_timeText.text = "0" + m_minutes.ToString() + ":" + m_seconds.ToString();
             }
-            else if (m_minutes > 10 && m_seconds < 10)
+            else if (m_minutes >= 10 && m_seconds < 10)
             {
                 m_timeText.text = m_minutes.ToString() + ":" + "0" + m_seconds.ToString();
             }

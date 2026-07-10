@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "name": "Camera",
+    "name": "CameraInputs",
     "maps": [
         {
             "name": "Default",
@@ -23,6 +23,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Look",
+                    "type": "Value",
+                    "id": "237e4eb6-a442-4320-89ca-9950a01d28ee",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Speedup",
+                    "type": "Button",
+                    "id": "aa229178-630a-450d-902f-0a762e4b2401",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -91,6 +109,28 @@
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "e8503be6-f49c-4a02-814f-ac2255abe010",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2ad4615a-31b9-4cae-8392-ab99318b84bd",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Speedup",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }
