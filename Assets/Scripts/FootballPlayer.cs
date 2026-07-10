@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class FootballPlayer : MonoBehaviour
 {
+    [Header("Player Info")]
     [SerializeField] private int m_playerNumber;
     [SerializeField] private int m_teamNumber;
     [SerializeField] private bool m_hasBall;
@@ -11,6 +12,7 @@ public class FootballPlayer : MonoBehaviour
 
     public void SetPlayer(int number, Material teamColour, int teamNumber)
     {
+        // Let the GameManager set the player info
         m_playerNumber = number;
         m_number = GetComponentInChildren<TextMeshPro>();
         m_number.text = m_playerNumber.ToString();
@@ -18,15 +20,4 @@ public class FootballPlayer : MonoBehaviour
         GetComponent<Renderer>().material = teamColour;
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
